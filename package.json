@@ -2,7 +2,7 @@
   "name": "node-graphql-constraint-lambda",
   "version": "0.1.1",
   "description": "GraphQL 'constraint' directive written in functional programming style",
-  "main": "index.js",
+  "main": "src/index.js",
   "repository": "https://github.com/vsimko/node-graphql-constraint-lambda.git",
   "author": "Viliam Simko <viliam.simko@gmail.com>",
   "license": "MIT",
