@@ -12,7 +12,7 @@
     "validator": "^10.4.0"
   },
   "engines": {
-    "node": "^v8.11.2"
+    "node": ">=8.0.0"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
