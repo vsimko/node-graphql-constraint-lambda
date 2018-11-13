@@ -6,7 +6,9 @@ const {
   GraphQLDirective,
   GraphQLInt,
   GraphQLFloat,
-  GraphQLString
+  GraphQLString,
+  GraphQLSchema,
+  printSchema
 } = require('graphql')
 
 const {
@@ -70,15 +72,28 @@ const mapVerifiersFromArgs = mapObjIndexed((v, k) => allVerifiers[k](v))
  * */
 const verifyValue = fnlist => (...args) => map(fn => fn(...args), fnlist)
 
-const prepareVerifyFn = compose(verifyValue, mapVerifiersFromArgs) // should be self-explanatory
+const prepareVerifyFn = compose(
+  verifyValue,
+  mapVerifiersFromArgs
+) // should be self-explanatory
 
 module.exports = class extends SchemaDirectiveVisitor {
+  /**
+   * When using e.g. graphql-yoga, we need to include schema of this directive
+   * into our DSL, otherwise the graphql schema validator would report errors.
+   */
+  static getSchemaDSL () {
+    const constraintDirective = this.getDirectiveDeclaration('constraint')
+    const schema = new GraphQLSchema({
+      directives: [constraintDirective]
+    })
+    return printSchema(schema)
+  }
+
   static getDirectiveDeclaration (directiveName, schema) {
     return new GraphQLDirective({
       name: directiveName,
-      locations: [
-        DirectiveLocation.ARGUMENT_DEFINITION
-      ],
+      locations: [DirectiveLocation.ARGUMENT_DEFINITION],
       args: {
         /* Strings */
         minLength: { type: GraphQLInt },
