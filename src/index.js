@@ -1,5 +1,6 @@
 const { mapObjIndexed, map, compose } = require('ramda')
 const { SchemaDirectiveVisitor } = require('graphql-tools')
+
 const {
   DirectiveLocation,
   GraphQLDirective,
@@ -98,6 +99,10 @@ module.exports = class extends SchemaDirectiveVisitor {
     })
   }
 
+  /**
+   * @param {GraphQLArgument} argument
+   * @param {{field:GraphQLField<any, any>, objectType:GraphQLObjectType | GraphQLInterfaceType}} details
+   */
   visitArgumentDefinition (argument, details) {
     const verify = prepareVerifyFn(this.args)
     const originalResolver = details.field.resolve
