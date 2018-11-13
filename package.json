@@ -23,7 +23,9 @@
     "eslint-plugin-standard": "^3.1.0",
     "jest": "^23.1.0",
     "jest-cli": "^23.1.0",
-    "standard-version": "^4.4.0"
+    "standard-version": "^4.4.0",
+    "graphql": "^14.0.2",
+    "graphql-tools": "^4.0.3"
   },
   "scripts": {
     "git-cred": "git config credential.helper store",
