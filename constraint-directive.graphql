@@ -1,6 +1,6 @@
 # you need to include this definition into your schema
 # otherwise the graphql schema validation would report errors
-directive @constraint on ARGUMENT_DEFINITION {
+directive @constraint(
 
   # Constraints related to strings
   minLength: Int,
@@ -17,4 +17,5 @@ directive @constraint on ARGUMENT_DEFINITION {
   min: Float,
   max: Float,
   notEqual: Float
-}
+
+) on ARGUMENT_DEFINITION
