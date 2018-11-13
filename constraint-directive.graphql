@@ -1,0 +1,20 @@
+# you need to include this definition into your schema
+# otherwise the graphql schema validation would report errors
+directive @constraint on ARGUMENT_DEFINITION {
+
+  # Constraints related to strings
+  minLength: Int,
+  maxLength: Int,
+  startsWith: String,
+  endsWith: String,
+  contains: String,
+  notContains: String,
+  pattern: String,
+  format: String,
+  differsFrom: String,
+
+  # Constraints related to strings numbers (Int/Float)
+  min: Float,
+  max: Float,
+  notEqual: Float
+}
