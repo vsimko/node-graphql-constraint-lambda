@@ -1,5 +1,6 @@
 # node-graphql-constraint-lambda
 
+[![Build Status](https://travis-ci.org/vsimko/node-graphql-constraint-lambda.svg?branch=master)](https://travis-ci.org/vsimko/node-graphql-constraint-lambda)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 GraphQL constraint directive written in functional programming style.
