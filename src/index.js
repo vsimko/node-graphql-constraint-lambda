@@ -68,16 +68,23 @@ const mapVerifiersFromArgs = mapObjIndexed((v, k) => allVerifiers[k](v))
 /**
  * Maps a list of functions to a tuple of values (usually just a single value)
  * Currently, the only verifier that utilized more than one value is `differsFrom`
- * TODO: Find ramda function doing the same, perhaps. `ap`, `apply`...
+ * TODO: Find ramda function doing the same
  * */
 const verifyValue = fnlist => (...args) => map(fn => fn(...args), fnlist)
 
+/**
+ * Creates a `verify` function based on directive arguments that the developer
+ * specified in the graphql schema.
+ * Example: `age: Int! @constraint(min:0 max:100)` produces a `verify` function
+ * that checks numerical value of the `age` graphql parameter using
+ * the `min` and the max` constraint, but no ther constraints.
+ */
 const prepareVerifyFn = compose(
   verifyValue,
   mapVerifiersFromArgs
-) // should be self-explanatory
+)
 
-module.exports = class extends SchemaDirectiveVisitor {
+class ConstraintDirective extends SchemaDirectiveVisitor {
   /**
    * When using e.g. graphql-yoga, we need to include schema of this directive
    * into our DSL, otherwise the graphql schema validator would report errors.
@@ -135,4 +142,8 @@ module.exports = class extends SchemaDirectiveVisitor {
       return originalResolver.apply(this, resolveArgs)
     }
   }
+}
+
+module.exports = {
+  constraint: ConstraintDirective
 }

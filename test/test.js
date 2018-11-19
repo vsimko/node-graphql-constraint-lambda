@@ -1,7 +1,7 @@
 const { makeExecutableSchema } = require('graphql-tools')
 const { GraphQLSchema } = require('graphql')
 
-const constraint = require('../src/index')
+const { constraint } = require('../src/index')
 
 describe('@constraint directive', () => {
   it('should provide its own schema in DSL', () => {

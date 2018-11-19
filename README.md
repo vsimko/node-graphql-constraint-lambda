@@ -6,7 +6,7 @@
 GraphQL constraint directive written in functional programming style.
 This directive provides declarative verification of GraphQL arguments.
 
-Example:
+Example GraphQL Schema:
 ```graphql
 type Query {
   createUser (
@@ -16,6 +16,34 @@ type Query {
     age: Int @constraint(min:18)
   ): User
 }
+```
+Add dependency into `package.json`:
+```json
+{ ...
+  "dependencies": {
+    ...
+    "node-graphql-constraint-lambda": "https://github.com/vsimko/node-graphql-constraint-lambda.git",
+    ...
+  },
+  ...
+}
+
+```
+Use the constraint from your code:
+```js
+import { constraint } from 'node-graphql-constraint-lambda'
+
+// ... initialize your typeDefs and resolvers here ...
+
+const server = new GraphQLServer({
+  typeDefs,
+  resolvers,
+  schemaDirectives: {
+    constraint
+  }
+  // ... additional graphql server config
+})
+// ... start your server
 ```
 
 # Available constraints
