@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.0"></a>
+# [1.0.0](https://github.com/vsimko/node-graphql-constraint-lambda/compare/v0.3.0...v1.0.0) (2018-11-19)
+
+
+### Chores
+
+* wrap constraint directive class in `module.exports` ([71a2ac9](https://github.com/vsimko/node-graphql-constraint-lambda/commit/71a2ac9))
+
+
+### BREAKING CHANGES
+
+* the constraint directive is now wrapped  in
+`module.exports` as `{constraint}` instead of just returning the
+whole class.
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://github.com/vsimko/node-graphql-constraint-lambda/compare/v0.2.2...v0.3.0) (2018-11-13)
 

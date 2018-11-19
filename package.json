@@ -1,6 +1,6 @@
 {
   "name": "node-graphql-constraint-lambda",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "GraphQL 'constraint' directive written in functional programming style",
   "main": "src/index.js",
   "repository": "https://github.com/vsimko/node-graphql-constraint-lambda.git",
