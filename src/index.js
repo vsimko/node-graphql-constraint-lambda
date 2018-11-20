@@ -1,5 +1,14 @@
-const { mapObjIndexed, map, compose } = require('ramda')
 const { SchemaDirectiveVisitor } = require('graphql-tools')
+const { defaultValidators } = require('./validators')
+const {
+  mapObjIndexed,
+  map,
+  compose,
+  values,
+  filter,
+  unless,
+  isEmpty
+} = require('ramda')
 
 const {
   DirectiveLocation,
@@ -11,139 +20,132 @@ const {
   printSchema
 } = require('graphql')
 
-const {
-  isAfter, isBefore, isCreditCard, isUUID, isURL,
-  isEmail, isBase64, isRFC3339, isIP, contains
-} = require('validator')
-
-const throwif = (condition, message) => {
-  if (condition) throw Error(message)
-}
-
-const format2fun = {
-  email: isEmail,
-  base64: isBase64,
-  date: isRFC3339,
-  ipv4: x => isIP(x, 4),
-  ipv6: x => isIP(x, 6),
-  url: isURL,
-  uuid: isUUID,
-  futuredate: isAfter,
-  pastdate: isBefore,
-  creditcard: isCreditCard
-}
-
-const stringVerifiers = {
-  minLength: min => strOrArray => throwif(strOrArray && strOrArray.length < min, `Minimal length allowed is ${min}`),
-  maxLength: max => strOrArray => throwif(strOrArray && strOrArray.length > max, `Maximal length allowed is ${max}`),
-  startsWith: prefix => str => throwif(str && !str.startsWith(prefix), `Must start with prefix: ${prefix}`),
-  endsWith: suffix => str => throwif(str && !str.endsWith(suffix), `Argument must end with suffix: ${suffix}`),
-  contains: substr => str => throwif(str && !contains(str, substr), `Must contain ${substr}`),
-  notContains: substr => str => throwif(str && contains(str, substr), `Must not contain ${substr}`),
-  pattern: pattern => str => throwif(str && !new RegExp(pattern).test(str), `Must match ${pattern}`),
-  format: fmtName => str => throwif(str && !format2fun[fmtName](str), `Value does not matches the "${fmtName}" format`),
-  differsFrom: argName => (value, queryArgs) => throwif(value === queryArgs[argName], `Values must differ (arg:${argName})`)
-}
-
-const numericVerifiers = {
-  min: min => x => throwif(x < min, `Value too small`),
-  max: max => x => throwif(x > max, `Value too big`),
-  exclusiveMin: min => x => throwif(x <= min, `Value too small`),
-  exclusiveMax: max => x => throwif(x >= max, `Value too big`),
-  notEqual: neq => x => throwif(x === neq, `Value ${neq} not allowed`)
-}
-
-const allVerifiers = {
-  ...stringVerifiers,
-  ...numericVerifiers
-}
-
-/**
- * Converts directive arguments into verifiers with partially applied first parameter.
- * Example: @constraint(min:0)
- * This makes `min => x => f(x, min)` into `x => f(x,0)`
- */
-const mapVerifiersFromArgs = mapObjIndexed((v, k) => allVerifiers[k](v))
-
 /**
  * Maps a list of functions to a tuple of values (usually just a single value)
- * Currently, the only verifier that utilized more than one value is `differsFrom`
- * TODO: Find ramda function doing the same
- * */
-const verifyValue = fnlist => (...args) => map(fn => fn(...args), fnlist)
+ * Currently, the only validator that utilized more than one value is `differsFrom`
+ * Note: `fnlist` parameter is here for better readability. We could have curried it.
+ */
+const validateValue = fnlist => (...args) => map(fn => fn(...args), fnlist)
+
+/** Converts directive arguments into validator with partially applied first parameter */
+const mapValidatorsFromArgs = mapOfValidators =>
+  mapObjIndexed((v, k) => mapOfValidators[k](v))
 
 /**
- * Creates a `verify` function based on directive arguments that the developer
- * specified in the graphql schema.
- * Example: `age: Int! @constraint(min:0 max:100)` produces a `verify` function
- * that checks numerical value of the `age` graphql parameter using
- * the `min` and the max` constraint, but no ther constraints.
+ * Pure function that creates error message for each failed validation result.
+ * @example
+ * results = {
+ *  maxLength: true, // ok - fill be filtered out
+ *  minLength: false // failed - will be transformed into a message string
+ * }
  */
-const prepareVerifyFn = compose(
-  verifyValue,
-  mapVerifiersFromArgs
-)
+const resultsToErrorMessages = (constraintArgs, msgFunMap) =>
+  compose(
+    values,
+    mapObjIndexed((msg, key) => `${msg} (failed constraint ${key})`), // TODO: allows translation
+    mapObjIndexed((_, key) => msgFunMap[key](constraintArgs[key])),
+    filter(x => !x) // keep only failed validation results
+  )
 
-class ConstraintDirective extends SchemaDirectiveVisitor {
-  /**
-   * When using e.g. graphql-yoga, we need to include schema of this directive
-   * into our DSL, otherwise the graphql schema validator would report errors.
-   */
-  static getSchemaDSL () {
-    const constraintDirective = this.getDirectiveDeclaration('constraint')
-    const schema = new GraphQLSchema({
-      directives: [constraintDirective]
-    })
-    return printSchema(schema)
-  }
+/**
+ * Pure function that formats multiple error messages into a single string.
+ */
+const formatJoinedMessage = argname =>
+  unless(isEmpty, errors =>
+    [
+      `Constraints violated at argument '${argname}':`, // TODO: allows translation
+      ...map(x => `- ${x}`, errors)
+    ].join('\n')
+  )
 
-  static getDirectiveDeclaration (directiveName, schema) {
-    return new GraphQLDirective({
-      name: directiveName,
-      locations: [DirectiveLocation.ARGUMENT_DEFINITION],
-      args: {
-        /* Strings */
-        minLength: { type: GraphQLInt },
-        maxLength: { type: GraphQLInt },
-        startsWith: { type: GraphQLString },
-        endsWith: { type: GraphQLString },
-        contains: { type: GraphQLString },
-        notContains: { type: GraphQLString },
-        pattern: { type: GraphQLString },
-        format: { type: GraphQLString },
-        differsFrom: { type: GraphQLString },
+/**
+ * Throws and Error if there are some error messages.
+ * Note: We know that a code that throws exceptions is bad.
+ * However, the `SchemaVisitor` class works this way.
+ * We at least isolated such code into a single function.
+ */
+const throwOnErrors = unless(isEmpty, joinedMsg => {
+  throw Error(joinedMsg)
+})
 
-        /* Numbers (Int/Float) */
-        min: { type: GraphQLFloat },
-        max: { type: GraphQLFloat },
-        notEqual: { type: GraphQLFloat }
+const prepareConstraintDirective = allValidators =>
+  class extends SchemaDirectiveVisitor {
+    /**
+     * When using e.g. graphql-yoga, we need to include schema of this directive
+     * into our DSL, otherwise the graphql schema validator would report errors.
+     */
+    static getSchemaDSL () {
+      const constraintDirective = this.getDirectiveDeclaration('constraint')
+      const schema = new GraphQLSchema({
+        directives: [constraintDirective]
+      })
+      return printSchema(schema)
+    }
+
+    static getDirectiveDeclaration (directiveName, schema) {
+      return new GraphQLDirective({
+        name: directiveName,
+        locations: [DirectiveLocation.ARGUMENT_DEFINITION],
+        args: {
+          /* Strings */
+          minLength: { type: GraphQLInt },
+          maxLength: { type: GraphQLInt },
+          startsWith: { type: GraphQLString },
+          endsWith: { type: GraphQLString },
+          contains: { type: GraphQLString },
+          notContains: { type: GraphQLString },
+          pattern: { type: GraphQLString },
+          format: { type: GraphQLString },
+          differsFrom: { type: GraphQLString },
+
+          /* Numbers (Int/Float) */
+          min: { type: GraphQLFloat },
+          max: { type: GraphQLFloat },
+          notEqual: { type: GraphQLFloat }
+        }
+      })
+    }
+
+    /**
+     * @param {GraphQLArgument} argument
+     * @param {{field:GraphQLField<any, any>, objectType:GraphQLObjectType | GraphQLInterfaceType}} details
+     */
+    visitArgumentDefinition (argument, details) {
+      /**
+       * Creates a `validate` function based on directive arguments that the developer
+       * specified in the graphql schema.
+       * Example: `age: Int! @constraint(min:0 max:100)` produces a `validate` function
+       * that checks numerical value of the `age` graphql parameter using
+       * the `min` and the max` constraint, but no ther constraints.
+       */
+      const prepareValidateFn = compose(
+        validateValue,
+        mapValidatorsFromArgs(allValidators.fun)
+      )
+
+      // validation pipeline that throws errors at the end
+      // errors from multiple validators are collected
+      const validateAndThrowErrors = compose(
+        throwOnErrors,
+        formatJoinedMessage(argument.name),
+        resultsToErrorMessages(this.args, allValidators.msg),
+        prepareValidateFn(this.args)
+      )
+
+      // preparing the resolver
+      const originalResolver = details.field.resolve
+      details.field.resolve = async (...resolveArgs) => {
+        const args = resolveArgs[1] // (parent, args, context, info)
+        const valueToValidate = args[argument.name]
+
+        validateAndThrowErrors(valueToValidate, args)
+
+        return originalResolver.apply(this, resolveArgs)
       }
-    })
-  }
-
-  /**
-   * @param {GraphQLArgument} argument
-   * @param {{field:GraphQLField<any, any>, objectType:GraphQLObjectType | GraphQLInterfaceType}} details
-   */
-  visitArgumentDefinition (argument, details) {
-    const verify = prepareVerifyFn(this.args)
-    const originalResolver = details.field.resolve
-
-    details.field.resolve = async (...resolveArgs) => {
-      const args = resolveArgs[1] // (parent, args, context, info)
-      const valueToVerify = args[argument.name]
-
-      try {
-        verify(valueToVerify, args)
-      } catch (e) {
-        throw Error(`${e.message} (failed at argument '${argument.name}')`)
-      }
-
-      return originalResolver.apply(this, resolveArgs)
     }
   }
-}
 
 module.exports = {
-  constraint: ConstraintDirective
+  constraint: prepareConstraintDirective(defaultValidators),
+  prepareConstraintDirective
 }
