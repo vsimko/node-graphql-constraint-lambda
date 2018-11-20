@@ -9,7 +9,7 @@ const {
   defaultErrorMessageCallback
 } = require('../src/validators')
 
-describe('@constraint directive usage', () => {
+describe('constraint directive usage', () => {
   it('customization of messages', async () => {
     // this is just an example showing that it works, it can be implemented better
     const customizedMessageCallback = input => {
@@ -62,18 +62,49 @@ describe('@constraint directive usage', () => {
     )
   })
 
-  it('testing format2fun', () => {
-    expect(format2fun.email('test@test.com')).toEqual(true)
-    expect(format2fun.email('testtest.com')).toEqual(false)
+  describe('format2fun', () => {
+    it('email', () => {
+      expect(format2fun.email('test@test.com')).toEqual(true)
+      expect(format2fun.email('testtest.com')).toEqual(false)
+    })
   })
 
-  it('testing validators', () => {
-    expect(defaultValidators.contains('@')('test@test.com')).toEqual(true)
-    expect(defaultValidators.contains('@')('testtest.com')).toEqual(false)
+  describe('defaultValidators', () => {
+    it('contains', () => {
+      const { contains } = defaultValidators
+      expect(contains('@')('test@test.com')).toEqual(true)
+      expect(contains('@')('testtest.com')).toEqual(false)
+    })
+    it('startsWith', () => {
+      const { startsWith } = defaultValidators
+      expect(startsWith('b')('ab')).toEqual(false)
+      expect(startsWith('a')('ab')).toEqual(true)
+      expect(startsWith('')('')).toEqual(true)
+      expect(startsWith('')('a')).toEqual(true)
+      expect(startsWith('a')('')).toEqual(false)
+    })
+
+    it('endsWith', () => {
+      const { endsWith } = defaultValidators
+      expect(endsWith('b')('ab')).toEqual(true)
+      expect(endsWith('a')('ab')).toEqual(false)
+      expect(endsWith('')('')).toEqual(true)
+      expect(endsWith('')('a')).toEqual(true)
+      expect(endsWith('a')('')).toEqual(false)
+    })
+
+    it('minLength', () => {
+      const { minLength } = defaultValidators
+      expect(minLength(10)('ab')).toEqual(false)
+      expect(minLength(2)('ab')).toEqual(true)
+      expect(minLength(0)('ab')).toEqual(true)
+      expect(minLength(0)('')).toEqual(true)
+      expect(minLength(1)('')).toEqual(false)
+    })
   })
 })
 
-describe('@constraint directive class', () => {
+describe('constraint directive class', () => {
   it('should provide its own schema in DSL', () => {
     const dsl = constraint.getSchemaDSL()
     expect(dsl).toMatch('directive @constraint')
