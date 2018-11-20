@@ -1,14 +1,14 @@
 const { makeExecutableSchema } = require('graphql-tools')
 const { GraphQLSchema } = require('graphql')
 
+const { constraint, prepareConstraintDirective } = require('../src/index')
 const {
-  constraint,
   format2fun,
-  stringVerifiers,
-  numericVerifiers,
-  formatVerifier,
-  mergeVerifiers
-} = require('../src/index')
+  mergeValidators,
+  stringValidators,
+  numericValidators,
+  formatValidator
+} = require('../src/validators')
 
 describe('@constraint directive', () => {
   it('testing', async () => {
@@ -44,10 +44,10 @@ describe('@constraint directive', () => {
   })
 
   it('testing verifiers', () => {
-    const allVerifiers = mergeVerifiers(
-      stringVerifiers,
-      numericVerifiers,
-      formatVerifier(format2fun)
+    const allVerifiers = mergeValidators(
+      stringValidators,
+      numericValidators,
+      formatValidator(format2fun)
     )
     expect(allVerifiers.fun.contains('@')('test@test.com')).toEqual(true)
     expect(allVerifiers.fun.contains('@')('testtest.com')).toEqual(false)

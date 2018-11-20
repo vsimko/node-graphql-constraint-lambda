@@ -29,7 +29,7 @@ const format2fun = {
 // needs to be configured using format2fun
 const formatValidator = format2fun => ({
   fun: { format: fmtName => str => str && format2fun[fmtName](str) },
-  msg: { format: fmtName => `Value does not matches the '${fmtName}' format` }
+  msg: { format: fmtName => `Value does not match the '${fmtName}' format` }
 })
 
 const stringValidators = {
