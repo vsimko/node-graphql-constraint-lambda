@@ -1,4 +1,3 @@
-const { mergeDeepRight, reduce } = require('ramda')
 const {
   isAfter,
   isBefore,
@@ -28,65 +27,48 @@ const format2fun = {
 
 // needs to be configured using format2fun
 const formatValidator = format2fun => ({
-  fun: { format: fmtName => str => str && format2fun[fmtName](str) },
-  msg: { format: fmtName => `Value does not match the '${fmtName}' format` }
+  format: fmtName => str => str && format2fun[fmtName](str)
 })
 
 const stringValidators = {
-  fun: {
-    minLength: min => strOrArray => strOrArray && strOrArray.length >= min,
-    maxLength: max => strOrArray => strOrArray && strOrArray.length <= max,
-    startsWith: prefix => str => str && str.startsWith(prefix),
-    endsWith: suffix => str => str && str.endsWith(suffix),
-    contains: substr => str => str && contains(str, substr),
-    notContains: substr => str => str && !contains(str, substr),
-    pattern: pattern => str => str && new RegExp(pattern).test(str),
-    differsFrom: argName => (value, queryArgs) => value !== queryArgs[argName]
-  },
-  msg: {
-    minLength: min => `Minimal length allowed is ${min}`,
-    maxLength: max => `Maximal length allowed is ${max}`,
-    startsWith: prefix => `Must start with prefix '${prefix}'`,
-    endsWith: suffix => `Argument must end with suffix '${suffix}'`,
-    contains: substr => `Must contain '${substr}'`,
-    notContains: substr => `Must not contain '${substr}'`,
-    pattern: pattern => `Must match pattern '${pattern}'`,
-    differsFrom: argName => `Value in argument '${argName}' must be different`
-  }
+  minLength: min => strOrArray => strOrArray && strOrArray.length >= min,
+  maxLength: max => strOrArray => strOrArray && strOrArray.length <= max,
+  startsWith: prefix => str => str && str.startsWith(prefix),
+  endsWith: suffix => str => str && str.endsWith(suffix),
+  contains: substr => str => str && contains(str, substr),
+  notContains: substr => str => str && !contains(str, substr),
+  pattern: pattern => str => str && new RegExp(pattern).test(str),
+  differsFrom: argName => (value, queryArgs) => value !== queryArgs[argName]
 }
 
 const numericValidators = {
-  fun: {
-    min: min => x => x >= min,
-    max: max => x => x <= max,
-    exclusiveMin: min => x => x > min,
-    exclusiveMax: max => x => x < max,
-    notEqual: neq => x => x !== neq
-  },
-  msg: {
-    min: min => `Value too small (min=${min})`,
-    max: max => `Value too big (max=${max})`,
-    exclusiveMin: min => `Value too small, should be more than ${min}`,
-    exclusiveMax: max => `Value too big, should be less than ${max}`,
-    notEqual: neq => `Value ${neq} not allowed`
-  }
+  min: min => x => x >= min,
+  max: max => x => x <= max,
+  exclusiveMin: min => x => x > min,
+  exclusiveMax: max => x => x < max,
+  notEqual: neq => x => x !== neq
 }
 
-/**
- * Merges validators from multiple object together.
- * Note: validators are stored in objects as: `{fun:{...}, msg:{...}}`.
- */
-const mergeValidators = (...args) => reduce(mergeDeepRight, {}, args)
+const defaultErrorMessageCallback = ({ argName, cName, cVal, data }) =>
+  `Constriant '${cName}:${cVal}' violated in field '${argName}'`
+
+const defaultValidators = {
+  ...formatValidator(format2fun),
+  ...numericValidators,
+  ...stringValidators
+}
+
+const defaultValidationCallback = ({ argName, cName, cVal, data }) => {
+  const result = defaultValidators[cName](cVal)(data)
+  return { argName, cName, cVal, data, result }
+}
 
 module.exports = {
-  defaultValidators: mergeValidators(
-    stringValidators,
-    numericValidators,
-    formatValidator(format2fun)
-  ),
+  defaultValidators,
+  defaultValidationCallback,
+  defaultErrorMessageCallback,
   stringValidators,
   numericValidators,
   formatValidator,
-  format2fun,
-  mergeValidators
+  format2fun
 }
