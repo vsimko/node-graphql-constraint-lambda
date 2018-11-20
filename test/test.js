@@ -35,7 +35,7 @@ describe('constraint directive usage', () => {
     await expect(
       details.field.resolve(null, { secondaryEmail: 'some_wrong_email' })
     ).rejects.toEqual(
-      Error([`Constriant 'format:email' violated in field 'secondaryEmail'`])
+      Error([`Constraint 'format:email' violated in field 'secondaryEmail'`])
     )
   })
 
@@ -56,8 +56,8 @@ describe('constraint directive usage', () => {
       details.field.resolve(null, { primaryEmail: 'test@test.com' })
     ).rejects.toEqual(
       Error([
-        `Constriant 'maxLength:5' violated in field 'primaryEmail'`,
-        `Constriant 'minLength:100' violated in field 'primaryEmail'`
+        `Constraint 'maxLength:5' violated in field 'primaryEmail'`,
+        `Constraint 'minLength:100' violated in field 'primaryEmail'`
       ])
     )
   })

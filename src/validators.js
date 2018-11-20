@@ -17,8 +17,11 @@ const {
   length,
   not,
   compose,
-  match
+  match,
+  defaultTo
 } = require('ramda')
+
+const defaultToEmptyStr = defaultTo('')
 
 // default formats, you can extend this in your code
 const format2fun = {
@@ -40,11 +43,11 @@ const formatValidator = format2fun => ({
 })
 
 const stringValidators = {
-  minLength: min => strOrArray => length(strOrArray) >= min,
-  maxLength: max => strOrArray => length(strOrArray) <= max,
+  minLength: min => strOrArray => length(defaultToEmptyStr(strOrArray)) >= min,
+  maxLength: max => strOrArray => length(defaultToEmptyStr(strOrArray)) <= max,
   startsWith, // from ramda
   endsWith, // from ramda
-  contains, // TODO: use `includes` instead since v0.26.0
+  contains, // TODO: ramda docs says `contains` is deprecated
   notContains: compose(not, contains),
   pattern: match, // from ramda
   differsFrom: argName => (value, queryArgs) => value !== queryArgs[argName]
@@ -59,7 +62,7 @@ const numericValidators = {
 }
 
 const defaultErrorMessageCallback = ({ argName, cName, cVal, data }) =>
-  `Constriant '${cName}:${cVal}' violated in field '${argName}'`
+  `Constraint '${cName}:${cVal}' violated in field '${argName}'`
 
 const defaultValidators = {
   ...formatValidator(format2fun),
