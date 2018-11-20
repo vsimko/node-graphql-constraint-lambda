@@ -97,5 +97,6 @@ module.exports = {
     defaultValidationCallback,
     defaultErrorMessageCallback
   ),
-  prepareConstraintDirective
+  prepareConstraintDirective,
+  ...require('./validators')
 }
