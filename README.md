@@ -4,7 +4,7 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 GraphQL constraint directive written in functional programming style.
-This directive provides declarative verification of GraphQL arguments.
+This directive provides declarative validation of GraphQL arguments.
 
 Example GraphQL Schema:
 ```graphql
@@ -51,12 +51,13 @@ const server = new GraphQLServer({
 ```
 
 # Available constraints
-See `stringVerifiers` and `numericVerifiers` mapping in [src/index.js].
+See `stringValidators`, `numericValidators` and `formatValidator` mapping in [src/validators.js].
 
 # Available formats
-We use functions from `validator` package. See `format2fun` mapping in [src/index.js].
+We use some functions from the `validator` package.
+See `format2fun` mapping in [src/validators.js].
 
-[src/index.js]: https://github.com/vsimko/node-graphql-constraint-lambda/blob/master/src/index.js
+[src/validators.js]: https://github.com/vsimko/node-graphql-constraint-lambda/blob/master/src/validators.js
 
 
 # Customization
