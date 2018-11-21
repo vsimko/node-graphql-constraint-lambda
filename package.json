@@ -2,6 +2,19 @@
   "name": "node-graphql-constraint-lambda",
   "version": "3.1.0",
   "description": "GraphQL 'constraint' directive written in functional programming style",
+  "bugs": {
+    "url": "https://github.com/vsimko/node-graphql-constraint-lambda/issues"
+  },
+  "keywords": [
+    "graphql",
+    "validate",
+    "validation",
+    "validator",
+    "directive",
+    "constraint",
+    "checking",
+    "schema"
+  ],
   "main": "src/index.js",
   "repository": "https://github.com/vsimko/node-graphql-constraint-lambda.git",
   "author": "Viliam Simko <viliam.simko@gmail.com>",
@@ -11,6 +24,9 @@
     "graphql-tools": "^4.0.3",
     "ramda": "^0.26.0",
     "validator": "^10.9.0"
+  },
+  "peerDependencies": {
+    "graphql": "^0.13.0"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -31,6 +47,7 @@
     "lint": "eslint .",
     "test": "jest",
     "release": "standard-version",
-    "release:push": "git push --follow-tags origin master"
+    "release:push": "git push --follow-tags origin master",
+    "release:npm": "yarn publish"
   }
 }
