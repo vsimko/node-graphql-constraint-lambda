@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/vsimko/node-graphql-constraint-lambda/compare/v2.0.3...v3.0.0) (2018-11-21)
+
+
+### improvement
+
+* rename function `getSchemaDSL` into `getSDL` ([fe67663](https://github.com/vsimko/node-graphql-constraint-lambda/commit/fe67663))
+
+
+### BREAKING CHANGES
+
+* Clients should change to `getSDL()` in their code.
+
+
+
 <a name="2.0.3"></a>
 ## [2.0.3](https://github.com/vsimko/node-graphql-constraint-lambda/compare/v2.0.1...v2.0.3) (2018-11-20)
 
