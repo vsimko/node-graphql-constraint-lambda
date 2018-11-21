@@ -7,10 +7,10 @@
   "author": "Viliam Simko <viliam.simko@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "ramda": "^0.26.0",
-    "validator": "^10.9.0",
+    "graphql": "^14.0.2",
     "graphql-tools": "^4.0.3",
-    "graphql": "^14.0.2"
+    "ramda": "^0.26.0",
+    "validator": "^10.9.0"
   },
   "engines": {
     "node": ">=8.0.0"
