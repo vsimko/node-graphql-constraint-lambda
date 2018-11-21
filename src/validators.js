@@ -48,7 +48,10 @@ const stringValidators = {
   startsWith, // from ramda
   endsWith, // from ramda
   contains, // TODO: ramda docs says `contains` is deprecated
-  notContains: compose(not, contains),
+  notContains: compose(
+    not,
+    contains
+  ),
   pattern: match, // from ramda
   differsFrom: argName => (value, queryArgs) => value !== queryArgs[argName]
 }
@@ -70,15 +73,16 @@ const defaultValidators = {
   ...stringValidators
 }
 
-const defaultValidationCallback = ({ argName, cName, cVal, data }) => {
-  const result = defaultValidators[cName](cVal)(data)
-  return { argName, cName, cVal, data, result }
-}
+const createValidationCallback = validators => input => ({
+  ...input,
+  result: validators[input.cName](input.cVal)(input.data)
+})
 
 module.exports = {
   defaultValidators,
-  defaultValidationCallback,
+  defaultValidationCallback: createValidationCallback(defaultValidators),
   defaultErrorMessageCallback,
+  createValidationCallback,
   stringValidators,
   numericValidators,
   formatValidator,
