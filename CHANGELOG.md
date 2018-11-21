@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.1.0"></a>
+# [3.1.0](https://github.com/vsimko/node-graphql-constraint-lambda/compare/v3.0.0...v3.1.0) (2018-11-21)
+
+
+### Features
+
+* add function createValidationCallback in src/validators.js ([1ea5747](https://github.com/vsimko/node-graphql-constraint-lambda/commit/1ea5747))
+
+
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/vsimko/node-graphql-constraint-lambda/compare/v2.0.3...v3.0.0) (2018-11-21)
 
