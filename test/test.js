@@ -105,14 +105,14 @@ describe('constraint directive usage', () => {
 })
 
 describe('constraint directive class', () => {
-  it('should provide its own schema in DSL', () => {
-    const dsl = constraint.getSchemaDSL()
-    expect(dsl).toMatch('directive @constraint')
+  it('should provide its own graphql SDL', () => {
+    const sdl = constraint.getSDL()
+    expect(sdl).toMatch('directive @constraint')
   })
 
   it('should work when used properly in other graphql schema', () => {
     const withOtherSchema = `
-      ${constraint.getSchemaDSL()}
+      ${constraint.getSDL()}
       type Mutation {
         signup(
           name: String @constraint(maxLength:20)
@@ -129,7 +129,7 @@ describe('constraint directive class', () => {
 
   it('should NOT work when using unknown parameter', () => {
     const withOtherSchema = `
-      ${constraint.getSchemaDSL()}
+      ${constraint.getSDL()}
       type Mutation {
         signup(
           name: String @constraint(DUMMY:123)

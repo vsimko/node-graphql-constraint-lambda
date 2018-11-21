@@ -27,9 +27,9 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
   class extends SchemaDirectiveVisitor {
     /**
      * When using e.g. graphql-yoga, we need to include schema of this directive
-     * into our DSL, otherwise the graphql schema validator would report errors.
+     * into our SDL, otherwise the graphql schema validator would report errors.
      */
-    static getSchemaDSL () {
+    static getSDL () {
       const constraintDirective = this.getDirectiveDeclaration('constraint')
       const schema = new GraphQLSchema({
         directives: [constraintDirective]
