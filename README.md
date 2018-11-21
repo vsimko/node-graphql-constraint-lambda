@@ -6,6 +6,16 @@
 GraphQL constraint directive written in functional programming style.
 This directive provides declarative validation of GraphQL arguments.
 
+## Install
+
+```sh
+yarn add node-graphql-constraint-lambda
+# or
+npm install node-graphql-constraint-lambda
+```
+
+## Usage
+
 Example GraphQL Schema:
 ```graphql
 type Query {
@@ -17,18 +27,7 @@ type Query {
   ): User
 }
 ```
-Add dependency into `package.json` (the package is not in npm yet):
-```json
-{ ...
-  "dependencies": {
-    ...
-    "node-graphql-constraint-lambda": "https://github.com/vsimko/node-graphql-constraint-lambda.git",
-    ...
-  },
-  ...
-}
 
-```
 Use the constraint from your code:
 ```js
 // when using es6 modules
@@ -50,19 +49,21 @@ const server = new GraphQLServer({
 // ... start your server
 ```
 
-# Available constraints
+## API
+
+### Available constraints
 See `stringValidators`, `numericValidators` and `formatValidator` mapping in [src/validators.js].
 
-# Available formats
+### Available formats
 We use some functions from the `validator` package.
 See `format2fun` mapping in [src/validators.js].
 
 [src/validators.js]: https://github.com/vsimko/node-graphql-constraint-lambda/blob/master/src/validators.js
 
 
-# Customization
+## Customization
 
-## Default behavoir
+### Default behavoir
 
 The following code shows how the constraint directive is configured with default behaviour:
 ```js
@@ -81,17 +82,18 @@ const constraint = prepareConstraintDirective(
 
 ```
 
-## Custom validation functions
-
-TODO: description of the validation callback
-
-## Custom error messages
+### Custom error messages
 
 Error messages are generated using a **callback** function that by default
 shows a generic error message. It is possible to change this behavior
-by implementing a custom callback as follows:
+by implementing a custom callback similar to this one:
 ```js
-// custom callback with a fallback to the default callback
+const myErrorMessageCallback = ({ argName, cName, cVal, data }) =>
+  `Error at field ${argName} in constraint ${cName}:${cVal}, data=${data}`
+```
+
+You might also want to customize certain messages and to keep the default callback as a fallback for all other messages:
+```js
 const myErrorMessageCallback = input => {
   const { argName, cName, cVal, data } = input
   if(/* decide whether to show custom message */)
@@ -102,4 +104,75 @@ const myErrorMessageCallback = input => {
 
 const constraint = prepareConstraintDirective(
   defaultValidationCallback, myErrorMessageCallback )
+```
+
+### Custom validation functions
+
+Also the validation functions are implemented through a callback function.
+The constraint directive comes with a set of useful defaults but if you
+want to add your own validator, it can be done as follows:
+```js
+import {
+  createValidationCallback,
+  prepareConstraintDirective,
+  defaultValidators } from 'node-graphql-constraint-lambda'
+
+// you can merge default validators with your own validator
+const myValidators = {
+  ...defaultValidators,
+
+  // your custom validator comes here
+  constraintName: constrintValue => dataToValidate => true/false
+
+  // Example: numerical pin codes of certain size `@constraint(pin:4)`
+  pin: size => code => length(code) === size && match(/[0-9]+/)(code)
+}
+
+const myValidationCallback = createValidationCallback(myValidators)
+
+// now you can create the constraint class
+const constraint = prepareConstraintDirective(
+  myValidationCallback, defaultErrorMessageCallback )
+```
+
+There is a special `format` validator that supports the folloring:
+-  `@constraint(format:"email")`
+-  `@constraint(format:"base64")`
+-  `@constraint(format:"date")`
+-  `@constraint(format:"ipv4")`
+-  `@constraint(format:"ipv6")`
+-  `@constraint(format:"url")`
+-  `@constraint(format:"uuid")`
+-  `@constraint(format:"futuredate")`
+-  `@constraint(format:"pastdate")`
+-  `@constraint(format:"creditcard")`
+
+Let's say we want to extend it to support `format:"uppercase"` format that checks whether all characters are just uppercase letters:
+```js
+import {
+  formatValidator,
+  numericValidators,
+  format2fun,
+  stringValidators } from 'node-graphql-constraint-lambda'
+
+const customFormat2Fun = {
+  ...format2fun,
+
+  uppercase: x => match(/[A-Z]*/)(x)
+  // we could have omitted the `x` parameter due to currying in the
+  // `match` function from ramda
+}
+
+const validators = {
+  ...formatValidator(customFormat2Fun),
+  ...numericValidators,
+  ...stringValidators
+}
+
+// now you can create the constraint class
+const constraint = prepareConstraintDirective(
+  createValidationCallback(validators),
+  defaultErrorMessageCallback
+)
+
 ```
