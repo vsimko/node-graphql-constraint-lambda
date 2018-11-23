@@ -1,17 +1,9 @@
+const { mapObjIndexed, compose, map, filter, values } = require('./utils')
 const { SchemaDirectiveVisitor } = require('graphql-tools')
 const {
   defaultValidationCallback,
   defaultErrorMessageCallback
 } = require('./validators')
-const {
-  mapObjIndexed,
-  map,
-  compose,
-  values,
-  filter,
-  unless,
-  isEmpty
-} = require('ramda')
 
 const {
   DirectiveLocation,
@@ -73,10 +65,7 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
         const args = resolveArgs[1] // (parent, args, context, info)
         const valueToValidate = args[argName]
 
-        const validateAndThrowErrors = compose(
-          unless(isEmpty, errors => {
-            throw Error(errors)
-          }),
+        const validate = compose(
           map(errorMessageCallback),
           filter(x => !x.result), // keep only failed validation results
           values,
@@ -85,7 +74,8 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
           )
         )
 
-        validateAndThrowErrors(this.args)
+        const errors = validate(this.args)
+        if (errors) throw new Error(errors)
 
         return originalResolver.apply(this, resolveArgs)
       }

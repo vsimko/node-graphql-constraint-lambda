@@ -7,21 +7,12 @@ const {
   isEmail,
   isBase64,
   isRFC3339,
-  isIP
+  isIP,
+  matches,
+  contains
 } = require('validator')
 
-const {
-  contains,
-  endsWith,
-  startsWith,
-  length,
-  not,
-  compose,
-  match,
-  defaultTo
-} = require('ramda')
-
-const defaultToEmptyStr = defaultTo('')
+const { length } = require('./utils')
 
 // default formats, you can extend this in your code
 const format2fun = {
@@ -43,16 +34,13 @@ const formatValidator = format2fun => ({
 })
 
 const stringValidators = {
-  minLength: min => strOrArray => length(defaultToEmptyStr(strOrArray)) >= min,
-  maxLength: max => strOrArray => length(defaultToEmptyStr(strOrArray)) <= max,
-  startsWith, // from ramda
-  endsWith, // from ramda
-  contains, // TODO: ramda docs says `contains` is deprecated
-  notContains: compose(
-    not,
-    contains
-  ),
-  pattern: match, // from ramda
+  minLength: min => strOrArray => length(strOrArray) >= min,
+  maxLength: max => strOrArray => length(strOrArray) <= max,
+  startsWith: prefix => str => str != null && str.startsWith(prefix),
+  endsWith: suffix => str => str != null && str.endsWith(suffix),
+  contains: el => str => contains(str, el),
+  notContains: el => str => !contains(str, el),
+  pattern: pat => str => matches(str, pat),
   differsFrom: argName => (value, queryArgs) => value !== queryArgs[argName]
 }
 

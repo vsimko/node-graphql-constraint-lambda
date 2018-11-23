@@ -22,7 +22,6 @@
   "dependencies": {
     "graphql": "^14.0.2",
     "graphql-tools": "^4.0.3",
-    "ramda": "^0.26.0",
     "validator": "^10.9.0"
   },
   "peerDependencies": {
