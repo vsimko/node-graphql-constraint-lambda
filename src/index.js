@@ -75,7 +75,7 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
         )
 
         const errors = validate(this.args)
-        if (errors) throw new Error(errors)
+        if (errors && errors.length > 0) throw new Error(errors)
 
         return originalResolver.apply(this, resolveArgs)
       }
