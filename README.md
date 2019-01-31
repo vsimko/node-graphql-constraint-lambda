@@ -50,6 +50,25 @@ const server = new GraphQLServer({
 // ... start your server
 ```
 
+You may need to declare the directive in the schema:
+
+```graphql
+directive @constraint(
+  minLength: Int,
+  maxLength: Int,
+  startsWith: String,
+  endsWith: String,
+  contains: String,
+  notContains: String,
+  pattern: String,
+  format: String,
+  differsFrom: String,
+  min: Float,
+  max: Float,
+  notEqual: Float
+) on ARGUMENT_DEFINITION
+```
+
 ## API
 
 ### Available constraints
