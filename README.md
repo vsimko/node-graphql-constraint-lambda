@@ -21,10 +21,10 @@ Example GraphQL Schema:
 ```graphql
 type Query {
   createUser (
-    name: String! @constraint(maxLength:40 minLength:5)
-    emailAddr: String @constraint(format:"email")
-    otherEmailAddr: String @constraint(format:"email" differsFrom:"emailAddr")
-    age: Int @constraint(min:18)
+    name: String! @constraint(minLength: 5, maxLength: 40)
+    emailAddr: String @constraint(format: "email")
+    otherEmailAddr: String @constraint(format: "email", differsFrom: "emailAddr")
+    age: Int @constraint(min: 18)
   ): User
 }
 ```
@@ -54,17 +54,17 @@ You may need to declare the directive in the schema:
 
 ```graphql
 directive @constraint(
-  minLength: Int,
-  maxLength: Int,
-  startsWith: String,
-  endsWith: String,
-  contains: String,
-  notContains: String,
-  pattern: String,
-  format: String,
-  differsFrom: String,
-  min: Float,
-  max: Float,
+  minLength: Int
+  maxLength: Int
+  startsWith: String
+  endsWith: String
+  contains: String
+  notContains: String
+  pattern: String
+  format: String
+  differsFrom: String
+  min: Float
+  max: Float
   notEqual: Float
 ) on ARGUMENT_DEFINITION
 ```
@@ -116,7 +116,7 @@ You might also want to customize certain messages and to keep the default callba
 ```js
 const myErrorMessageCallback = input => {
   const { argName, cName, cVal, data } = input
-  if(/* decide whether to show custom message */)
+  if (/* decide whether to show custom message */)
     return "custom error message" // based on input
   else
     return defaultErrorMessageCallback(input)
@@ -155,19 +155,19 @@ const constraint = prepareConstraintDirective(
   myValidationCallback, defaultErrorMessageCallback )
 ```
 
-There is a special `format` validator that supports the folloring:
--  `@constraint(format:"email")`
--  `@constraint(format:"base64")`
--  `@constraint(format:"date")`
--  `@constraint(format:"ipv4")`
--  `@constraint(format:"ipv6")`
--  `@constraint(format:"url")`
--  `@constraint(format:"uuid")`
--  `@constraint(format:"futuredate")`
--  `@constraint(format:"pastdate")`
--  `@constraint(format:"creditcard")`
+There is a special `format` validator that supports the following:
+-  `@constraint(format: "email")`
+-  `@constraint(format: "base64")`
+-  `@constraint(format: "date")`
+-  `@constraint(format: "ipv4")`
+-  `@constraint(format: "ipv6")`
+-  `@constraint(format: "url")`
+-  `@constraint(format: "uuid")`
+-  `@constraint(format: "futuredate")`
+-  `@constraint(format: "pastdate")`
+-  `@constraint(format: "creditcard")`
 
-Let's say we want to extend it to support `format:"uppercase"` format that checks whether all characters are just uppercase letters:
+Let's say we want to extend it to support `format: "uppercase"` format that checks whether all characters are just uppercase letters:
 ```js
 import {
   formatValidator,
