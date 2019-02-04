@@ -65,6 +65,8 @@ directive @constraint(
   differsFrom: String
   min: Float
   max: Float
+  exclusiveMin: Float
+  exclusiveMax: Float
   notEqual: Float
 ) on ARGUMENT_DEFINITION
 ```
