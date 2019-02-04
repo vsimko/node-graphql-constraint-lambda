@@ -48,6 +48,8 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
           /* Numbers (Int/Float) */
           min: { type: GraphQLFloat },
           max: { type: GraphQLFloat },
+          exclusiveMin: { type: GraphQLFloat },
+          exclusiveMax: { type: GraphQLFloat },
           notEqual: { type: GraphQLFloat }
         }
       })
