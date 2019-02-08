@@ -52,11 +52,11 @@ const numericValidators = {
   notEqual: neq => x => x !== neq
 }
 
-//TODO: implement it
+// TODO: implement it
 const logicalValidators = {
-  //OR: ,
-  //AND: ,
-  //NOT: 
+  // OR: ,
+  // AND: ,
+  // NOT:
 }
 
 const defaultErrorMessageCallback = ({ argName, cName, cVal, data }) =>
