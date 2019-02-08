@@ -49,11 +49,14 @@ const numericValidators = {
   max: max => x => x <= max,
   exclusiveMin: min => x => x > min,
   exclusiveMax: max => x => x < max,
-  notEqual: neq => x => x !== neq,
-  //TODO: implement the following validators
+  notEqual: neq => x => x !== neq
+}
+
+//TODO: implement it
+const logicalValidators = {
   //OR: ,
   //AND: ,
-  //NOT:
+  //NOT: 
 }
 
 const defaultErrorMessageCallback = ({ argName, cName, cVal, data }) =>
@@ -62,6 +65,7 @@ const defaultErrorMessageCallback = ({ argName, cName, cVal, data }) =>
 const defaultValidators = {
   ...formatValidator(format2fun),
   ...numericValidators,
+  ...logicalValidators,
   ...stringValidators
 }
 
@@ -77,6 +81,7 @@ module.exports = {
   createValidationCallback,
   stringValidators,
   numericValidators,
+  logicalValidators,
   formatValidator,
   format2fun
 }
