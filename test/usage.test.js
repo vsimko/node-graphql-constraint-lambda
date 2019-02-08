@@ -65,10 +65,10 @@ describe('nested logical operators', () => {
     // eslint-disable-next-line new-cap
     const cInst = new constraint({
       args: {
-        where: {
-          maxLength: 5,
-          minLength: 100
-        }
+        OR: [
+          { contains: "foo" },
+          { contains: "bar" }
+        ]
       }
     })
 

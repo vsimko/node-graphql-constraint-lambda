@@ -21,11 +21,11 @@ Example GraphQL Schema:
 ```graphql
 type Query {
   createUser (
-    name: String! @constraint(where: {minLength: 5, maxLength: 40})
-    emailAddr: String @constraint(where: {format: "email"})
-    otherEmailAddr: String @constraint(where: {format: "email", differsFrom: "emailAddr"})
-    age: Int @constraint(where: {min: 18})
-    bio: String @constraint(where: {OR: [{contains: "foo"}, {contains: "bar"}]})
+    name: String! @constraint(minLength: 5, maxLength: 40)
+    emailAddr: String @constraint(format: "email")
+    otherEmailAddr: String @constraint(format: "email", differsFrom: "emailAddr")
+    age: Int @constraint(min: 18)
+    bio: String @constraint(OR: [{contains: "foo"}, {contains: "bar"}])
   ): User
 }
 ```
@@ -54,12 +54,30 @@ const server = new GraphQLServer({
 You may need to declare the directive in the schema:
 
 ```graphql
-directive @constraint(where: constraintsWhereInput!) on ARGUMENT_DEFINITION
+directive @constraint(
+  OR: [ConstraintInput!],
+  NOT: [ConstraintInput!],
+  AND: [ConstraintInput!],
+  minLength: Int
+  maxLength: Int
+  startsWith: String
+  endsWith: String
+  contains: String
+  notContains: String
+  pattern: String
+  format: String
+  differsFrom: String
+  min: Float
+  max: Float
+  exclusiveMin: Float
+  exclusiveMax: Float
+  notEqual: Float
+) on ARGUMENT_DEFINITION
 
-input constraintsWhereInput {
-  AND: [constraintsWhereInput!]
-  OR: [constraintsWhereInput!]
-  NOT: [constraintsWhereInput!]
+input ConstraintInput {
+  OR: [ConstraintInput!]
+  NOT: [ConstraintInput!]
+  AND: [ConstraintInput!]
   minLength: Int
   maxLength: Int
   startsWith: String

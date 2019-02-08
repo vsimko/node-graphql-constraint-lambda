@@ -23,6 +23,7 @@ const {
   GraphQLSchema,
   GraphQLInputObjectType,
   GraphQLList,
+  GraphQLNonNull,
   printSchema
 } = require('graphql')
 
@@ -46,7 +47,19 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
      * @param {GraphQLSchema} schema
      */
     static getDirectiveDeclaration (directiveName, schema) {
-      const simpleArgs = {
+      const constraintInput = new GraphQLNonNull(new GraphQLInputObjectType({
+        name: 'ConstraintInput',
+        fields: () => ({
+          ...args
+        })
+      }))
+
+      const args = {
+        /* Logical combinators */
+        OR: { type: new GraphQLList(constraintInput) },
+        NOT: { type: new GraphQLList(constraintInput) },
+        AND: { type: new GraphQLList(constraintInput) },
+
         /* Strings */
         minLength: { type: GraphQLInt },
         maxLength: { type: GraphQLInt },
@@ -66,22 +79,11 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
         notEqual: { type: GraphQLFloat }
       }
 
-      const constraintsWhereInput = new GraphQLInputObjectType({
-        name: 'constraintsWhereInput',
-        fields: () => ({
-          ...simpleArgs,
-          AND: { type: new GraphQLList(constraintsWhereInput) },
-          OR: { type: new GraphQLList(constraintsWhereInput) },
-          NOT: { type: new GraphQLList(constraintsWhereInput) }
-        })
-      })
-
       return new GraphQLDirective({
         name: directiveName,
         locations: [DirectiveLocation.ARGUMENT_DEFINITION],
         args: {
-          ...simpleArgs,
-          where: { type: constraintsWhereInput }
+          ...args
         }
       })
     }
