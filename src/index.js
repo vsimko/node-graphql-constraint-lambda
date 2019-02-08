@@ -1,3 +1,12 @@
+// @ts-check
+/**
+ * Support for code assist and type checing in vscode
+ * @typedef {import("graphql").GraphQLInterfaceType} GraphQLInterfaceType
+ * @typedef {import("graphql").GraphQLObjectType} GraphQLObjectType
+ * @typedef {import("graphql").GraphQLField} GraphQLField
+ * @typedef {import("graphql").GraphQLArgument} GraphQLArgument
+ */
+
 const { mapObjIndexed, compose, map, filter, values } = require('./utils')
 const { SchemaDirectiveVisitor } = require('graphql-tools')
 const {
@@ -14,57 +23,64 @@ const {
   GraphQLSchema,
   GraphQLInputObjectType,
   GraphQLList,
-  GraphQLNonNull,
   printSchema
 } = require('graphql')
 
 const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
-  class extends SchemaDirectiveVisitor {
+  class ConstraintDirectiveVisitor extends SchemaDirectiveVisitor {
     /**
      * When using e.g. graphql-yoga, we need to include schema of this directive
      * into our SDL, otherwise the graphql schema validator would report errors.
      */
     static getSDL () {
-      const constraintDirective = this.getDirectiveDeclaration('constraint')
+      const thisDirective = this.getDirectiveDeclaration('constraint', null)
       const schema = new GraphQLSchema({
-        directives: [constraintDirective]
+        query: undefined,
+        directives: [thisDirective]
       })
       return printSchema(schema)
     }
 
+    /**
+     * @param {string} directiveName
+     * @param {GraphQLSchema} schema
+     */
     static getDirectiveDeclaration (directiveName, schema) {
-      const constraintsWhereInput = new GraphQLNonNull(
-        new GraphQLInputObjectType({
-          name: 'constraintsWhereInput',
-          fields: () => ({
-            /* Strings */
-            AND: { type: new GraphQLList(constraintsWhereInput) },
-            OR: { type: new GraphQLList(constraintsWhereInput) },
-            NOT: { type: new GraphQLList(constraintsWhereInput) },
-            minLength: { type: GraphQLInt },
-            maxLength: { type: GraphQLInt },
-            startsWith: { type: GraphQLString },
-            endsWith: { type: GraphQLString },
-            contains: { type: GraphQLString },
-            notContains: { type: GraphQLString },
-            pattern: { type: GraphQLString },
-            format: { type: GraphQLString },
-            differsFrom: { type: GraphQLString },
+      const simpleArgs = {
+        /* Strings */
+        minLength: { type: GraphQLInt },
+        maxLength: { type: GraphQLInt },
+        startsWith: { type: GraphQLString },
+        endsWith: { type: GraphQLString },
+        contains: { type: GraphQLString },
+        notContains: { type: GraphQLString },
+        pattern: { type: GraphQLString },
+        format: { type: GraphQLString },
+        differsFrom: { type: GraphQLString },
 
-            /* Numbers (Int/Float) */
-            min: { type: GraphQLFloat },
-            max: { type: GraphQLFloat },
-            exclusiveMin: { type: GraphQLFloat },
-            exclusiveMax: { type: GraphQLFloat },
-            notEqual: { type: GraphQLFloat }
-          })
+        /* Numbers (Int/Float) */
+        min: { type: GraphQLFloat },
+        max: { type: GraphQLFloat },
+        exclusiveMin: { type: GraphQLFloat },
+        exclusiveMax: { type: GraphQLFloat },
+        notEqual: { type: GraphQLFloat }
+      }
+
+      const constraintsWhereInput = new GraphQLInputObjectType({
+        name: 'constraintsWhereInput',
+        fields: () => ({
+          ...simpleArgs,
+          AND: { type: new GraphQLList(constraintsWhereInput) },
+          OR: { type: new GraphQLList(constraintsWhereInput) },
+          NOT: { type: new GraphQLList(constraintsWhereInput) }
         })
-      )
+      })
 
       return new GraphQLDirective({
         name: directiveName,
         locations: [DirectiveLocation.ARGUMENT_DEFINITION],
         args: {
+          ...simpleArgs,
           where: { type: constraintsWhereInput }
         }
       })
@@ -72,7 +88,7 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
 
     /**
      * @param {GraphQLArgument} argument
-     * @param {{field:GraphQLField<any, any>, objectType:GraphQLObjectType | GraphQLInterfaceType}} details
+     * @param {{field:GraphQLField, objectType:GraphQLObjectType | GraphQLInterfaceType}} details
      */
     visitArgumentDefinition (argument, details) {
       // preparing the resolver
