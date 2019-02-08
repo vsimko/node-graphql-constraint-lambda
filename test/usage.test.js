@@ -60,6 +60,31 @@ describe('constraint directive usage', () => {
   })
 })
 
+describe('nested logical operators', () => {
+  it('TODO', async () => {
+    // eslint-disable-next-line new-cap
+    const cInst = new constraint({
+      args: {
+        where: {
+          maxLength: 5,
+          minLength: 100
+        }
+      }
+    })
+
+    const details = { field: {} }
+    cInst.visitArgumentDefinition({ name: 'primaryEmail' }, details)
+    await expect(
+      details.field.resolve(null, { primaryEmail: 'test@test.com' })
+    ).rejects.toEqual(
+      Error([
+        `Constraint 'maxLength:5' violated in field 'primaryEmail'`,
+        `Constraint 'minLength:100' violated in field 'primaryEmail'`
+      ])
+    )
+  })
+})
+
 describe('format2fun', () => {
   it('email', () => {
     expect(format2fun.email('test@test.com')).toEqual(true)

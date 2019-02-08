@@ -107,6 +107,7 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
           )
         )
 
+        // validation starts here and errors are collected
         const errors = validate(this.args)
         if (errors && errors.length > 0) throw new Error(errors)
 
