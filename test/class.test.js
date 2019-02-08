@@ -1,3 +1,5 @@
+// @ts-check
+
 const { makeExecutableSchema } = require('graphql-tools')
 const { GraphQLSchema } = require('graphql')
 const { constraint } = require('../src/index')
