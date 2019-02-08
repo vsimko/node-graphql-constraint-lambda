@@ -12,6 +12,9 @@ const {
   GraphQLFloat,
   GraphQLString,
   GraphQLSchema,
+  GraphQLInputObjectType,
+  GraphQLList,
+  GraphQLNonNull,
   printSchema
 } = require('graphql')
 
@@ -30,11 +33,13 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
     }
 
     static getDirectiveDeclaration (directiveName, schema) {
-      return new GraphQLDirective({
-        name: directiveName,
-        locations: [DirectiveLocation.ARGUMENT_DEFINITION],
-        args: {
+      const constraintsWhereInput = new GraphQLNonNull(new GraphQLInputObjectType({
+        name: 'constraintsWhereInput',
+        fields: () => ({
           /* Strings */
+          AND: { type: new GraphQLList(constraintsWhereInput) },
+          OR: { type: new GraphQLList(constraintsWhereInput) },
+          NOT: { type: new GraphQLList(constraintsWhereInput) },
           minLength: { type: GraphQLInt },
           maxLength: { type: GraphQLInt },
           startsWith: { type: GraphQLString },
@@ -51,6 +56,14 @@ const prepareConstraintDirective = (validationCallback, errorMessageCallback) =>
           exclusiveMin: { type: GraphQLFloat },
           exclusiveMax: { type: GraphQLFloat },
           notEqual: { type: GraphQLFloat }
+        })
+      }));
+
+      return new GraphQLDirective({
+        name: directiveName,
+        locations: [DirectiveLocation.ARGUMENT_DEFINITION],
+        args: {
+          where: { type:  constraintsWhereInput }
         }
       })
     }

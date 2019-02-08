@@ -49,7 +49,11 @@ const numericValidators = {
   max: max => x => x <= max,
   exclusiveMin: min => x => x > min,
   exclusiveMax: max => x => x < max,
-  notEqual: neq => x => x !== neq
+  notEqual: neq => x => x !== neq,
+  //TODO: implement the following validators
+  //OR: ,
+  //AND: ,
+  //NOT:
 }
 
 const defaultErrorMessageCallback = ({ argName, cName, cVal, data }) =>

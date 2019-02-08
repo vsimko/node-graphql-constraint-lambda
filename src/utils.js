@@ -9,6 +9,8 @@ const compose = (...fnlist) => data =>
   [...fnlist, data].reduceRight((prev, fn) => fn(prev))
 
 const mapObjIndexed = fn => obj => {
+  //FIXME: sure, there is a better way to do this
+  obj = obj['where'];
   const acc = {}
   Object.keys(obj).forEach(key => (acc[key] = fn(obj[key], key, obj)))
   return acc
