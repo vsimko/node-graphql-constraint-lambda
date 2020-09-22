@@ -25,6 +25,7 @@ type Query {
     emailAddr: String @constraint(format: "email")
     otherEmailAddr: String @constraint(format: "email", differsFrom: "emailAddr")
     age: Int @constraint(min: 18)
+    bio: String @constraint(OR: [{contains: "foo"}, {contains: "bar"}])
   ): User
 }
 ```
@@ -54,6 +55,9 @@ You may need to declare the directive in the schema:
 
 ```graphql
 directive @constraint(
+  OR: [ConstraintInput!],
+  NOT: [ConstraintInput!],
+  AND: [ConstraintInput!],
   minLength: Int
   maxLength: Int
   startsWith: String
@@ -69,6 +73,26 @@ directive @constraint(
   exclusiveMax: Float
   notEqual: Float
 ) on ARGUMENT_DEFINITION
+
+input ConstraintInput {
+  OR: [ConstraintInput!]
+  NOT: [ConstraintInput!]
+  AND: [ConstraintInput!]
+  minLength: Int
+  maxLength: Int
+  startsWith: String
+  endsWith: String
+  contains: String
+  notContains: String
+  pattern: String
+  format: String
+  differsFrom: String
+  min: Float
+  max: Float
+  exclusiveMin: Float
+  exclusiveMax: Float
+  notEqual: Float
+}
 ```
 
 ## API

@@ -45,6 +45,7 @@
     "git-cred": "git config credential.helper store",
     "lint": "eslint .",
     "test": "jest",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest",
     "release": "standard-version",
     "release:push": "git push --follow-tags origin master",
     "release:npm": "yarn publish"
