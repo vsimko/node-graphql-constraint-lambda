@@ -22,7 +22,7 @@
   "dependencies": {
     "graphql": "^14.0.2",
     "graphql-tools": "^4.0.3",
-    "validator": "^10.9.0"
+    "validator": "^13.7.0"
   },
   "peerDependencies": {
     "graphql": "^0.13.0"
