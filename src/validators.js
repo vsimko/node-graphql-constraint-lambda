@@ -52,12 +52,20 @@ const numericValidators = {
   notEqual: neq => x => x !== neq
 }
 
+// TODO: implement it
+const logicalValidators = {
+  // OR: ,
+  // AND: ,
+  // NOT:
+}
+
 const defaultErrorMessageCallback = ({ argName, cName, cVal, data }) =>
   `Constraint '${cName}:${cVal}' violated in field '${argName}'`
 
 const defaultValidators = {
   ...formatValidator(format2fun),
   ...numericValidators,
+  ...logicalValidators,
   ...stringValidators
 }
 
@@ -73,6 +81,7 @@ module.exports = {
   createValidationCallback,
   stringValidators,
   numericValidators,
+  logicalValidators,
   formatValidator,
   format2fun
 }
